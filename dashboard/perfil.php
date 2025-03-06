@@ -2,7 +2,7 @@
 
 <!--INICIO del cont principal-->
 <div class="container">
-    <h1>Página de Perfil</h1>
+    <h1>Página de perfil</h1>
 </div>
 <!--FIN del cont principal-->
 
