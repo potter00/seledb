@@ -1,5 +1,9 @@
 <?php
+// Incluir el archivo de conexión a la base de datos
 include 'conexion.php';
+
+// Crear la conexión a la base de datos
+$conexion = Conexion::Conectar();
 
 class Inventario {
 
@@ -70,8 +74,6 @@ class Inventario {
     }
 }
 
-// Ejemplo de uso de la clase
-
 // Crear una instancia de la clase Inventario
 $inventario = new Inventario($conexion);
 
@@ -94,5 +96,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $inventario->agregarReactivo($nombre, $unidad, $inventario_inicial, $compras, $consumo, $existencia, $inventario_muestras, $gasto_por_dia, $inventario_en_dias, $dias_en_surtir, $inventario_al_llegar, $punto_reorden);
 }
 
-$conexion->close();
+// No es necesario cerrar la conexión explícitamente con PDO
 ?>
