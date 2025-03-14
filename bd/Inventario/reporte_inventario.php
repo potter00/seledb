@@ -1,17 +1,16 @@
 <?php
-require 'vendor/autoload.php';  // Cargar librerías de Composer
-use setasign\Fpdf\Fpdf;
+require __DIR__ . '/../../vendor/setasign/fpdf/fpdf.php'; // Cargar FPDF
 
-$pdf = new Fpdf();
+$pdf = new FPDF();
 $pdf->AddPage();
 $pdf->SetFont('Arial', 'B', 12);
 $pdf->Cell(190, 10, 'Reporte de Inventario', 1, 1, 'C');
 
-// Simulación de datos (aquí deberías hacer una consulta a la base de datos)
+// Simulación de datos
 $productos = [
-    ['Producto' => 'Laptop', 'Cantidad' => 10, 'Precio' => 1200],
-    ['Producto' => 'Mouse', 'Cantidad' => 50, 'Precio' => 20],
-    ['Producto' => 'Teclado', 'Cantidad' => 30, 'Precio' => 45]
+    ['Producto' => 'Uranio', 'Cantidad' => 50, 'Precio' => 20],
+    ['Producto' => 'Clorudo', 'Cantidad' => 30, 'Precio' => 45],
+    ['Producto' => 'Nitrato de Sodio', 'Cantidad' => 15, 'Precio' => 300]
 ];
 
 $pdf->SetFont('Arial', '', 10);

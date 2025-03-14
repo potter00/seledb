@@ -16,9 +16,9 @@
     <nav>
         <ul>
             <li><a href="inventario.php">Ver Inventario</a></li>
-            <li><a href="agregarinventario.php">Agregar Producto</a></li>
-            <li><a href="editarinventario.php">Editar Producto</a></li>
-            <li><a href="eliminarinventario.php">Eliminar Producto</a></li>
+            <li><a href="agregarInventario.php">Agregar Producto</a></li>
+            <li><a href="editarInventario.php">Editar Producto</a></li>
+            <li><a href="eliminarInventario.php">Eliminar Producto</a></li>
             <li><a href="reporte_inventario.php">Generar Reporte PDF</a></li>
         </ul>
     </nav>
