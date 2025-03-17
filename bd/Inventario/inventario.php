@@ -1,6 +1,6 @@
 <?php
 // Incluir el archivo de conexión a la base de datos
-include 'conexion.php';
+include '../conexion.php';
 
 // Crear la conexión a la base de datos
 $conexion = Conexion::Conectar();
