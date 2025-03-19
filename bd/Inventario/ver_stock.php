@@ -1,7 +1,10 @@
 <?php
 require_once '../Inventario/inventario.php';
 
+// Crear instancia de la clase Inventario
 $inventario = new Inventario();
+
+// Llamar al método obtenerProductosStockBajo
 $productos_bajo_stock = $inventario->obtenerProductosStockBajo();
 
 if (!empty($productos_bajo_stock)) {

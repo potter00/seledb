@@ -1,66 +1,40 @@
 <?php
-require '../conexion.php';
-require 'inventario.php';
+require_once '../conexion.php';  // Asegúrate de que la ruta sea correcta
 
-// Crear instancia de Inventario
-$inventario = new Inventario($conexion);
-$result = $inventario->obtenerReactivos();
-?>
+// Incluir la clase Inventario
+require_once 'Inventario.php'; 
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Lista de Reactivos</title>
-    <style>
-        table {
-            width: 90%;
-            border-collapse: collapse;
-            margin: 20px auto;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .acciones a {
-            margin: 5px;
-            text-decoration: none;
-            color: blue;
-        }
-    </style>
-</head>
-<body>
-    <h2 style="text-align:center;">Lista de Reactivos</h2>
-    <table>
+// Crear una instancia de la clase Inventario
+$inventario = new Inventario();  // Usamos el constructor sin parámetros
+
+// Llamar al método adecuado para obtener los productos
+$result = $inventario->obtenerProductosStockBajo();  // Usamos el método correcto
+
+echo "<h2>Lista de Productos con Stock Bajo</h2>";
+echo "<table border='1'>
         <tr>
             <th>ID</th>
             <th>Nombre</th>
             <th>Unidad</th>
-            <th>Inventario Inicial</th>
-            <th>Compras</th>
-            <th>Consumo</th>
-            <th>Existencia</th>
+            <th>Stock Actual</th>
+            <th>Stock Mínimo</th>
             <th>Acciones</th>
-        </tr>
-        <?php foreach ($result as $row) { ?>
-        <tr>
-            <td><?php echo htmlspecialchars($row['id']); ?></td>
-            <td><?php echo htmlspecialchars($row['nombre']); ?></td>
-            <td><?php echo htmlspecialchars($row['unidad']); ?></td>
-            <td><?php echo htmlspecialchars($row['inventario_inicial']); ?></td>
-            <td><?php echo htmlspecialchars($row['compras']); ?></td>
-            <td><?php echo htmlspecialchars($row['consumo']); ?></td>
-            <td><?php echo htmlspecialchars($row['existencia']); ?></td>
-            <td class="acciones">
-                <a href='editarReactivo.php?id=<?php echo $row['id']; ?>'>Editar</a> |
-                <a href='eliminarReactivo.php?id=<?php echo $row['id']; ?>' onclick="return confirm('¿Seguro que deseas eliminar este reactivo?')">Eliminar</a>
+        </tr>";
+
+// Aquí no usamos `fetch_assoc()`, ya que $result es un array
+foreach ($result as $row) {
+    echo "<tr>
+            <td>{$row['id']}</td>
+            <td>{$row['nombre']}</td>
+            <td>{$row['unidad']}</td>
+            <td>{$row['stock_actual']}</td>
+            <td>{$row['stock_minimo']}</td>
+            <td>
+                <a href='editarProducto.php?id={$row['id']}'>Editar</a>
+                <a href='eliminarProducto.php?id={$row['id']}'>Eliminar</a>
             </td>
-        </tr>
-        <?php } ?>
-    </table>
-</body>
-</html>
+        </tr>";
+}
+
+echo "</table>";
+?>
