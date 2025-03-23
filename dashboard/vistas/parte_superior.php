@@ -81,7 +81,7 @@ if ($_SESSION["s_usuario"] === null) {
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Secciones:</h6>
             <a class="collapse-item" href="reportes.php">Reportes</a>
-
+            <a class="collapse-item" href="reactivos.php">Reactivos</a>
             <a class="collapse-item" href="usuarios.php">Usuarios</a>
           </div>
         </div>
