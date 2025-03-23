@@ -1,18 +1,21 @@
 <?php
-class Conexion
-{
-    public static function Conectar()
-    {
-        define('servidor', '127.0.0.2');
-        define('nombre_bd', 'selectadb');
-        define('usuario', 'root');
-        define('password', '');
-        $opciones = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8');
-        try {
-            $conexion = new PDO("mysql:host=" . servidor . ";dbname=" . nombre_bd, usuario, password, $opciones);
-            return $conexion;
-        } catch (Exception $e) {
-            die("El error de Conexión es :" . $e->getMessage());
+class Conexion {
+    private static $host = "localhost";
+    private static $dbname = "selectadb";
+    private static $username = "root";  // Cambia si usas otra credencial
+    private static $password = "Petrolera2022!";      // Cambia si usas otra credencial
+    private static $conexion = null;
+
+    public static function Conectar() {
+        if (self::$conexion == null) {
+            try {
+                self::$conexion = new PDO("mysql:host=" . self::$host . ";dbname=" . self::$dbname, self::$username, self::$password);
+                self::$conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException $e) {
+                die("Error de conexión: " . $e->getMessage());
+            }
         }
+        return self::$conexion;
     }
 }
+?>
