@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require '../conexion.php';
-require '../../vendor/autoload.php';  // Asegúrate de que la ruta sea correcta
+require '../../vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -11,25 +11,20 @@ class ExcelImport {
     private $conexion;
 
     public function __construct() {
-        $this->conexion = Conexion::Conectar(); // Inicializa la conexión con la base de datos
+        $this->conexion = Conexion::Conectar();
     }
 
     public function importarExcel($archivo) {
         try {
-            // Cargar el archivo Excel
             $spreadsheet = IOFactory::load($archivo);
             $hoja = $spreadsheet->getActiveSheet();
-            $datos = $hoja->toArray(); // Convertir los datos de la hoja a un array
+            $datos = $hoja->toArray();
+            array_shift($datos); // Saltar encabezados
 
-            // Saltar la primera fila si tiene encabezados
-            array_shift($datos);
-
-            // Preparar la consulta SQL
             $sql = "INSERT INTO inventario (nombre, unidad, stock_actual, stock_minimo) 
                     VALUES (:nombre, :unidad, :stock_actual, :stock_minimo)";
             $stmt = $this->conexion->prepare($sql);
 
-            // Insertar los datos en la base de datos
             foreach ($datos as $fila) {
                 $stmt->bindParam(':nombre', $fila[0]);
                 $stmt->bindParam(':unidad', $fila[1]);
@@ -38,53 +33,67 @@ class ExcelImport {
                 $stmt->execute();
             }
 
-            return "Datos importados correctamente."; // Mensaje de éxito
+            return "✅ Datos importados correctamente.";
         } catch (Exception $e) {
-            return "Error al importar: " . $e->getMessage(); // Mensaje de error
+            return "❌ Error al importar: " . $e->getMessage();
         }
     }
 }
-
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Importar Excel</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../estilos.css">
 </head>
 <body>
 
-    <h2>Importar Productos desde Excel</h2>
+    <div class="container mt-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h2 class="text-center">📥 Importar Productos desde Excel</h2>
+            </div>
+            <div class="card-body">
+                <form action="excelImport.php" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="archivo">Selecciona el archivo Excel:</label>
+                        <input type="file" name="archivo" id="archivo" class="form-control-file" accept=".xls,.xlsx" required>
+                    </div>
+                    <button type="submit" name="submit" class="btn btn-success btn-block">
+                        📂 Subir Archivo
+                    </button>
+                </form>
+            </div>
+        </div>
 
-    <!-- Formulario para cargar archivo Excel -->
-    <form action="excelImport.php" method="POST" enctype="multipart/form-data">
-        <label for="archivo">Selecciona el archivo Excel:</label>
-        <input type="file" name="archivo" id="archivo" accept=".xls,.xlsx" required>
-        <button type="submit" name="submit">Subir</button>
-    </form>
+        <div class="mt-3">
+            <?php
+            if (isset($_FILES['archivo']) && $_FILES['archivo']['error'] == 0) {
+                $archivo = $_FILES['archivo']['tmp_name'];
+                $ext = pathinfo($_FILES['archivo']['name'], PATHINFO_EXTENSION);
 
-    <?php
-    // Verificar si el formulario fue enviado
-    if (isset($_FILES['archivo']) && $_FILES['archivo']['error'] == 0) {
-        // Verificar la extensión del archivo
-        $archivo = $_FILES['archivo']['tmp_name'];
-        $ext = pathinfo($_FILES['archivo']['name'], PATHINFO_EXTENSION);
+                if (!in_array($ext, ['xlsx', 'xls'])) {
+                    echo '<div class="alert alert-danger">❌ Por favor, sube un archivo Excel válido (xlsx o xls).</div>';
+                } else {
+                    $excelImport = new ExcelImport();
+                    $mensaje = $excelImport->importarExcel($archivo);
+                    echo "<div class='alert alert-info'>$mensaje</div>";
+                }
+            } else {
+                echo '<div class="alert alert-warning">⚠️ Por favor, selecciona un archivo Excel para importar.</div>';
+            }
+            ?>
+        </div>
+    </div>
 
-        if (!in_array($ext, ['xlsx', 'xls'])) {
-            echo "<p>Por favor, sube un archivo Excel válido (xlsx o xls).</p>";
-        } else {
-            // Llamar a la clase ExcelImport para procesar el archivo
-            $excelImport = new ExcelImport();
-            $mensaje = $excelImport->importarExcel($archivo);
-            echo "<p>$mensaje</p>"; // Mostrar mensaje de éxito o error
-        }
-    } else {
-        // Si no se ha subido ningún archivo
-        echo "<p>Por favor, selecciona un archivo Excel para importar.</p>";
-    }
-    ?>
-
+    <!-- Bootstrap JS -->
+    <script src="../jquery/jquery-3.3.1.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
