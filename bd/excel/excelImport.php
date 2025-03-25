@@ -45,31 +45,78 @@ class ExcelImport {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Importar Excel</title>
-    
+
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../estilos.css">
+    <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #343a40;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        .sidebar a {
+            color: white;
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .sidebar a:hover {
+            background: #495057;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
+        }
+        .table-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="container mt-5">
-        <div class="card shadow-lg">
-            <div class="card-header bg-primary text-white">
-                <h2 class="text-center">📥 Importar Productos desde Excel</h2>
-            </div>
-            <div class="card-body">
-                <form action="excelImport.php" method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="archivo">Selecciona el archivo Excel:</label>
-                        <input type="file" name="archivo" id="archivo" class="form-control-file" accept=".xls,.xlsx" required>
-                    </div>
-                    <button type="submit" name="submit" class="btn btn-success btn-block">
-                        📂 Subir Archivo
-                    </button>
-                </form>
-            </div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h4><i class="fas fa-clipboard-list"></i> Panel</h4>
+        <a href="dashboard.php"><i class="fas fa-home"></i> Inicio</a>
+        <a href="inventario.php"><i class="fas fa-box"></i> Inventario</a>
+        <a href="importarExcel.php" class="active"><i class="fas fa-file-import"></i> Importar Excel</a>
+        <a href="configuracion.php"><i class="fas fa-cogs"></i> Configuración</a>
+        <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="content">
+        <h2>📥 Importar Productos desde Excel</h2>
+
+        <div class="table-container">
+            <form action="excelImport.php" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="archivo">Selecciona el archivo Excel:</label>
+                    <input type="file" name="archivo" id="archivo" class="form-control-file" accept=".xls,.xlsx" required>
+                </div>
+                <button type="submit" name="submit" class="btn btn-success btn-block">
+                    <i class="fas fa-upload"></i> Subir Archivo
+                </button>
+            </form>
         </div>
 
         <div class="mt-3">
@@ -93,7 +140,7 @@ class ExcelImport {
     </div>
 
     <!-- Bootstrap JS -->
-    <script src="../jquery/jquery-3.3.1.min.js"></script>
-    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <script src="../../jquery/jquery-3.3.1.min.js"></script>
+    <script src="../../bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
