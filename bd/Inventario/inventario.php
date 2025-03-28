@@ -7,31 +7,90 @@ class Inventario {
     private $conexion;
 
     public function __construct() {
-        $this->conexion = Conexion::Conectar(); // Ahora obtenemos la conexión directamente
+        $this->conexion = Conexion::Conectar();
     }
 
-    public function agregarProducto($nombre, $unidad, $stock_actual, $stock_minimo) {
+    public function obtenerProductosStockBajo() {
         try {
-            $sql = "INSERT INTO inventario (nombre, unidad, stock_actual, stock_minimo) 
-                    VALUES (:nombre, :unidad, :stock_actual, :stock_minimo)";
-            $stmt = $this->conexion->prepare($sql);
-            $stmt->bindParam(':nombre', $nombre);
-            $stmt->bindParam(':unidad', $unidad);
-            $stmt->bindParam(':stock_actual', $stock_actual);
-            $stmt->bindParam(':stock_minimo', $stock_minimo);
-            return $stmt->execute();
+            $query = "SELECT * FROM tblreactivos WHERE existencia <= punto_reorden";
+            $stmt = $this->conexion->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Error al obtener productos: " . $e->getMessage());
+        }
+    }
+
+    public function obtenerTodosLosProductos() {
+        try {
+            $query = "SELECT * FROM tblreactivos ORDER BY nombre";
+            $stmt = $this->conexion->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Error al obtener productos: " . $e->getMessage());
+        }
+    }
+
+    public function agregarProducto($datos) {
+        try {
+            $query = "INSERT INTO tblreactivos (nombre, unidad, inventario_inicial, compras, consumo, 
+                      existencia, inventario_muestras, gasto_por_dia, inventario_en_dias, 
+                      dias_en_surtir, inventario_al_llegar, punto_reorden) 
+                      VALUES (:nombre, :unidad, :inventario_inicial, :compras, :consumo, 
+                      :existencia, :inventario_muestras, :gasto_por_dia, :inventario_en_dias, 
+                      :dias_en_surtir, :inventario_al_llegar, :punto_reorden)";
+            
+            $stmt = $this->conexion->prepare($query);
+            return $stmt->execute($datos);
         } catch (PDOException $e) {
             die("Error al agregar producto: " . $e->getMessage());
         }
     }
 
-    public function obtenerProductosStockBajo() {
+    public function actualizarProducto($id, $datos) {
         try {
-            $sql = "SELECT * FROM inventario WHERE stock_actual < stock_minimo";
-            $stmt = $this->conexion->query($sql);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $query = "UPDATE tblreactivos SET 
+                      nombre = :nombre,
+                      unidad = :unidad,
+                      inventario_inicial = :inventario_inicial,
+                      compras = :compras,
+                      consumo = :consumo,
+                      existencia = :existencia,
+                      inventario_muestras = :inventario_muestras,
+                      gasto_por_dia = :gasto_por_dia,
+                      inventario_en_dias = :inventario_en_dias,
+                      dias_en_surtir = :dias_en_surtir,
+                      inventario_al_llegar = :inventario_al_llegar,
+                      punto_reorden = :punto_reorden
+                      WHERE id = :id";
+            
+            $datos['id'] = $id;
+            $stmt = $this->conexion->prepare($query);
+            return $stmt->execute($datos);
         } catch (PDOException $e) {
-            die("Error al obtener stock bajo: " . $e->getMessage());
+            die("Error al actualizar producto: " . $e->getMessage());
+        }
+    }
+
+    public function eliminarProducto($id) {
+        try {
+            $query = "DELETE FROM tblreactivos WHERE id = :id";
+            $stmt = $this->conexion->prepare($query);
+            return $stmt->execute(['id' => $id]);
+        } catch (PDOException $e) {
+            die("Error al eliminar producto: " . $e->getMessage());
+        }
+    }
+
+    public function obtenerProductoPorId($id) {
+        try {
+            $query = "SELECT * FROM tblreactivos WHERE id = :id";
+            $stmt = $this->conexion->prepare($query);
+            $stmt->execute(['id' => $id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Error al obtener producto: " . $e->getMessage());
         }
     }
 }
