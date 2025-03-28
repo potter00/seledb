@@ -14,7 +14,10 @@ if ($conexion->connect_error) {
 }
 
 // Obtener datos de movimientos desde la BD
-$query = "SELECT id, producto, tipo, cantidad, fecha FROM movimientos ORDER BY fecha DESC";
+$query = "SELECT m.id, m.producto, m.tipo, m.cantidad, m.fecha, i.nombre AS producto_nombre 
+          FROM movimientos m
+          JOIN inventario i ON m.producto = i.id
+          ORDER BY m.fecha DESC";
 $resultado = $conexion->query($query);
 
 // Agregar encabezados
@@ -26,11 +29,11 @@ $pdf->Cell(30, 10, 'Cantidad', 1);
 $pdf->Cell(40, 10, 'Fecha', 1);
 $pdf->Ln();
 
-// Agregar datos al PDF
+// Agregar datos de movimientos al PDF
 $pdf->SetFont('Arial', '', 10);
 while ($fila = $resultado->fetch_assoc()) {
     $pdf->Cell(20, 10, $fila['id'], 1);
-    $pdf->Cell(60, 10, $fila['producto'], 1);
+    $pdf->Cell(60, 10, $fila['producto_nombre'], 1); // Mostrar nombre del producto de inventario
     $pdf->Cell(30, 10, $fila['tipo'], 1);
     $pdf->Cell(30, 10, $fila['cantidad'], 1);
     $pdf->Cell(40, 10, $fila['fecha'], 1);

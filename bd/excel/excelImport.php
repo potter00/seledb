@@ -16,20 +16,50 @@ class ExcelImport {
 
     public function importarExcel($archivo) {
         try {
+            // Validar el tipo MIME del archivo
+            $tipoMime = mime_content_type($archivo);
+            if ($tipoMime !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' && $tipoMime !== 'application/vnd.ms-excel') {
+                return "❌ El archivo debe ser un archivo Excel válido.";
+            }
+
+            // Cargar el archivo Excel
             $spreadsheet = IOFactory::load($archivo);
             $hoja = $spreadsheet->getActiveSheet();
             $datos = $hoja->toArray();
             array_shift($datos); // Saltar encabezados
 
-            $sql = "INSERT INTO inventario (nombre, unidad, stock_actual, stock_minimo) 
-                    VALUES (:nombre, :unidad, :stock_actual, :stock_minimo)";
+            $sql = "INSERT INTO tblreactivos (
+                        reactivo, inventario_inicial, unidad, compras, consumo, existencia,
+                        inventario_muestras, gasto_por_dia, inventario_en_dias, dias_en_surtir,
+                        inventario_al_llegar, punto_reorden
+                    ) 
+                    VALUES (
+                        :reactivo, :inventario_inicial, :unidad, :compras, :consumo, :existencia,
+                        :inventario_muestras, :gasto_por_dia, :inventario_en_dias, :dias_en_surtir,
+                        :inventario_al_llegar, :punto_reorden
+                    )";
             $stmt = $this->conexion->prepare($sql);
 
             foreach ($datos as $fila) {
-                $stmt->bindParam(':nombre', $fila[0]);
-                $stmt->bindParam(':unidad', $fila[1]);
-                $stmt->bindParam(':stock_actual', $fila[2]);
-                $stmt->bindParam(':stock_minimo', $fila[3]);
+                // Validar que los datos estén completos y sean válidos
+                if (count($fila) < 12 || empty($fila[0]) || empty($fila[1])) {
+                    return "❌ Los datos en el archivo no son válidos.";
+                }
+
+                // Asignar valores a los parámetros
+                $stmt->bindParam(':reactivo', $fila[0]);
+                $stmt->bindParam(':inventario_inicial', $fila[1] ?: 0); // Si no hay valor, usar 0
+                $stmt->bindParam(':unidad', $fila[2]);
+                $stmt->bindParam(':compras', $fila[3] ?: 0);
+                $stmt->bindParam(':consumo', $fila[4] ?: 0);
+                $stmt->bindParam(':existencia', $fila[5] ?: 0);
+                $stmt->bindParam(':inventario_muestras', $fila[6] ?: 0);
+                $stmt->bindParam(':gasto_por_dia', $fila[7] ?: 0);
+                $stmt->bindParam(':inventario_en_dias', $fila[8] ?: 0);
+                $stmt->bindParam(':dias_en_surtir', $fila[9] ?: 0);
+                $stmt->bindParam(':inventario_al_llegar', $fila[10] ?: 0);
+                $stmt->bindParam(':punto_reorden', $fila[11] ?: 0);
+
                 $stmt->execute();
             }
 
@@ -124,18 +154,32 @@ class ExcelImport {
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo">
-            <img src="../../dashboard/img/Logo.png" alt="Selecta">
-        </div>
-        <h4><i class="fas fa-clipboard-list"></i> Panel</h4>
-        <a href="/seledb/index.php" class="active"><i class="fas fa-home"></i> Inicio</a>
-        <a href="../inventario/inventario.php" class="active"><i class="fas fa-box"></i> Inventario</a>
-        <a href="excelImport.php" class="active"><i class="fas fa-file-import"></i> Importar Excel</a>
-        <a href="configuracion.php"><i class="fas fa-cogs"></i> Configuración</a>
-        <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+  <!-- Sidebar -->
+<div class="sidebar">
+    <div class="logo">
+        <img src="../../dashboard/img/Logo.png" alt="Selecta">
     </div>
+    <h4><i class="fas fa-clipboard-list"></i> Panel</h4>
+    
+    <a href="/seledb/index.php"><i class="fas fa-home"></i> Inicio</a>
+    <a href="../inventario/inventario.php"><i class="fas fa-box"></i> Inventario</a>
+    <a href="excelImport.php"><i class="fas fa-file-import"></i> Importar Excel</a>
+    
+    <!-- Sección de Reportes -->
+    <h4><i class="fas fa-chart-bar"></i> Reportes</h4>
+    <!-- Abrir reportes en una nueva pestaña -->
+    <a href="http://localhost/seledb/bd/reportes/reporte_inventario.php" target="_blank">
+        <i class="fas fa-file-alt"></i> Reporte Inventario
+    </a>
+    <a href="http://localhost/seledb/bd/reportes/reporte_movimientos.php" target="_blank">
+        <i class="fas fa-file-alt"></i> Reporte Movimientos
+    </a>
+
+    <a href="configuracion.php"><i class="fas fa-cogs"></i> Configuración</a>
+    <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+</div>
+
+
 
     <!-- Contenido principal -->
     <div class="content">
