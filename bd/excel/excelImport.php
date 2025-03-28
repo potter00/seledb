@@ -162,7 +162,7 @@ class ExcelImport {
     <h4><i class="fas fa-clipboard-list"></i> Panel</h4>
     
     <a href="/seledb/index.php"><i class="fas fa-home"></i> Inicio</a>
-    <a href="../inventario/inventario.php"><i class="fas fa-box"></i> Inventario</a>
+    <a href="../inventario/verInventario.php"><i class="fas fa-box"></i> Inventario</a>
     <a href="excelImport.php"><i class="fas fa-file-import"></i> Importar Excel</a>
     
     <!-- Sección de Reportes -->
