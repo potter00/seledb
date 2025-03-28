@@ -130,9 +130,9 @@ class ExcelImport {
             <img src="../../dashboard/img/Logo.png" alt="Selecta">
         </div>
         <h4><i class="fas fa-clipboard-list"></i> Panel</h4>
-        <a href="dashboard.php"><i class="fas fa-home"></i> Inicio</a>
-        <a href="inventario.php"><i class="fas fa-box"></i> Inventario</a>
-        <a href="importarExcel.php" class="active"><i class="fas fa-file-import"></i> Importar Excel</a>
+        <a href="/seledb/index.php" class="active"><i class="fas fa-home"></i> Inicio</a>
+        <a href="../inventario/inventario.php" class="active"><i class="fas fa-box"></i> Inventario</a>
+        <a href="excelImport.php" class="active"><i class="fas fa-file-import"></i> Importar Excel</a>
         <a href="configuracion.php"><i class="fas fa-cogs"></i> Configuración</a>
         <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
     </div>
@@ -142,7 +142,8 @@ class ExcelImport {
         <!-- Barra superior -->
         <nav class="navbar">
             <div class="user-info">
-                <i class="fas fa-user-circle"></i> Admin
+            <img src="../../dashboard/img/user.png" alt="user">
+                <!-- <i class="fas fa-user-circle"></i> Admin -->
             </div>
         </nav>
 
