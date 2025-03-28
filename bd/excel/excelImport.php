@@ -50,37 +50,68 @@ class ExcelImport {
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
         body {
             display: flex;
+            margin: 0;
         }
         .sidebar {
             width: 250px;
             height: 100vh;
-            background: #343a40;
+            background: #007bff; /* Azul */
             color: white;
             padding: 20px;
             position: fixed;
             top: 0;
             left: 0;
         }
+        .sidebar .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sidebar .logo img {
+            max-width: 80%;
+            height: auto;
+        }
         .sidebar a {
             color: white;
-            display: block;
+            display: flex;
+            align-items: center;
             padding: 10px;
             text-decoration: none;
             border-radius: 5px;
             margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .sidebar a i {
+            margin-right: 10px;
+            color: white !important; /* Asegurar visibilidad */
         }
         .sidebar a:hover {
-            background: #495057;
+            background: #0056b3;
         }
         .content {
-            margin-left: 260px;
+            margin-left: 250px;
             padding: 20px;
-            width: 100%;
+            width: calc(100% - 250px);
+        }
+        .navbar {
+            background: #f8f9fa;
+            padding: 10px;
+            border-bottom: 2px solid #ddd;
+            display: flex;
+            justify-content: flex-end; /* Alinea el usuario a la derecha */
+            align-items: center;
+        }
+        .navbar .user-info {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .navbar .user-info i {
+            margin-right: 8px;
         }
         .table-container {
             background: #fff;
@@ -95,6 +126,9 @@ class ExcelImport {
 
     <!-- Sidebar -->
     <div class="sidebar">
+        <div class="logo">
+            <img src="../../dashboard/img/Logo.png" alt="Selecta">
+        </div>
         <h4><i class="fas fa-clipboard-list"></i> Panel</h4>
         <a href="dashboard.php"><i class="fas fa-home"></i> Inicio</a>
         <a href="inventario.php"><i class="fas fa-box"></i> Inventario</a>
@@ -105,6 +139,13 @@ class ExcelImport {
 
     <!-- Contenido principal -->
     <div class="content">
+        <!-- Barra superior -->
+        <nav class="navbar">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i> Admin
+            </div>
+        </nav>
+
         <h2>📥 Importar Productos desde Excel</h2>
 
         <div class="table-container">
