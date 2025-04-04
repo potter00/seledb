@@ -90,7 +90,7 @@ $result = $inventario->obtenerProductosStockBajo();
     
     <a href="/seledb/index.php"><i class="fas fa-home"></i> Inicio</a>
     <a href="../inventario/verInventario.php"><i class="fas fa-box"></i> Inventario</a>
-    <a href="excelImport.php"><i class="fas fa-file-import"></i> Importar Excel</a>
+    <a href="../excel/excelImport.php"><i class="fas fa-file-import"></i> Importar Excel</a>
     
     <!-- Sección de Reportes -->
     <h4><i class="fas fa-chart-bar"></i> Reportes</h4>
