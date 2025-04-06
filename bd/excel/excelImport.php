@@ -15,42 +15,54 @@ class ExcelImport {
     }
 
     public function importarExcel($datos) {
-        $sql = "INSERT INTO tblreactivos (
-                    reactivo, inventario_inicial, unidad, compras, consumo, existencia,
-                    inventario_muestras, gasto_por_dia, inventario_en_dias, dias_en_surtir,
+        $sql = "INSERT INTO inventario (
+                    reactivo, compras, consumo, existencia,
+                    inventario_en_muestras, gasto_por_dia, inventario_en_dias, dias_en_surtir,
                     inventario_al_llegar, punto_reorden
                 ) 
                 VALUES (
-                    :reactivo, :inventario_inicial, :unidad, :compras, :consumo, :existencia,
-                    :inventario_muestras, :gasto_por_dia, :inventario_en_dias, :dias_en_surtir,
+                    :reactivo, :compras, :consumo, :existencia,
+                    :inventario_en_muestras, :gasto_por_dia, :inventario_en_dias, :dias_en_surtir,
                     :inventario_al_llegar, :punto_reorden
                 )";
+        
         $stmt = $this->conexion->prepare($sql);
-
+    
         foreach ($datos as $fila) {
-            if (count($fila) < 12 || empty($fila[0]) || empty($fila[1])) {
-                return "❌ Los datos en el archivo no son válidos.";
+            if (count($fila) < 7 || empty($fila[0])) {
+                continue; // Saltar filas incompletas
             }
-
-            $stmt->bindParam(':reactivo', $fila[0]);
-            $stmt->bindParam(':inventario_inicial', $fila[1] ?: 0);
-            $stmt->bindParam(':unidad', $fila[2]);
-            $stmt->bindParam(':compras', $fila[3] ?: 0);
-            $stmt->bindParam(':consumo', $fila[4] ?: 0);
-            $stmt->bindParam(':existencia', $fila[5] ?: 0);
-            $stmt->bindParam(':inventario_muestras', $fila[6] ?: 0);
-            $stmt->bindParam(':gasto_por_dia', $fila[7] ?: 0);
-            $stmt->bindParam(':inventario_en_dias', $fila[8] ?: 0);
-            $stmt->bindParam(':dias_en_surtir', $fila[9] ?: 0);
-            $stmt->bindParam(':inventario_al_llegar', $fila[10] ?: 0);
-            $stmt->bindParam(':punto_reorden', $fila[11] ?: 0);
-
+    
+            $reactivo = $fila[0];
+            $compras = $fila[1] ?: 0;
+            $consumo = $fila[2] ?: 0;
+            $existencia = $fila[3] ?: 0;
+            $inventario_en_muestras = $fila[4] ?: 0;
+            $gasto_por_dia = $fila[5] ?: 0;
+            $inventario_en_dias = $fila[6] ?: 0;
+            $dias_en_surtir = $fila[7] ?? 0;
+            $inventario_al_llegar = $fila[8] ?? 0;
+            $punto_reorden = $fila[9] ?? 0;
+    
+            $stmt->bindParam(':reactivo', $reactivo);
+            $stmt->bindParam(':compras', $compras);
+            $stmt->bindParam(':consumo', $consumo);
+            $stmt->bindParam(':existencia', $existencia);
+            $stmt->bindParam(':inventario_en_muestras', $inventario_en_muestras);
+            $stmt->bindParam(':gasto_por_dia', $gasto_por_dia);
+            $stmt->bindParam(':inventario_en_dias', $inventario_en_dias);
+            $stmt->bindParam(':dias_en_surtir', $dias_en_surtir);
+            $stmt->bindParam(':inventario_al_llegar', $inventario_al_llegar);
+            $stmt->bindParam(':punto_reorden', $punto_reorden);
+    
             $stmt->execute();
         }
-
+    
         return "✅ Datos importados correctamente.";
     }
-}
+    
+    }
+
 ?>
 
 <!DOCTYPE html>
@@ -119,7 +131,7 @@ class ExcelImport {
 </div>
 
 <div class="content">
-    <nav class="navbar"><div class="user-info"><img src="../../dashboard/img/user.png" alt="user"></div></nav>
+    <nav class="navbar"><div class="user-info"><img src="../../dashboard/img/user.png" alt="user" width="40"></div></nav>
     <h2>📥 Importar Productos desde Excel</h2>
 
     <div class="table-container">
@@ -134,18 +146,27 @@ class ExcelImport {
 
     <?php
     $datos = [];
+    $mensaje = '';
 
     if (isset($_FILES['archivo']) && $_FILES['archivo']['error'] == 0) {
-        $archivo = $_FILES['archivo']['tmp_name'];
-        $ext = pathinfo($_FILES['archivo']['name'], PATHINFO_EXTENSION);
+        $nombreOriginal = $_FILES['archivo']['name'];
+        $archivoTempName = $_FILES['archivo']['tmp_name'];
+        $archivoDestino = __DIR__ . '/temp/' . uniqid('excel_') . '_' . $nombreOriginal;
+
+        if (!move_uploaded_file($archivoTempName, $archivoDestino)) {
+            echo '<div class="alert alert-danger">❌ No se pudo guardar el archivo temporal.</div>';
+            exit;
+        }
+
+        $ext = pathinfo($archivoDestino, PATHINFO_EXTENSION);
 
         if (!in_array($ext, ['xlsx', 'xls'])) {
             echo '<div class="alert alert-danger mt-3">❌ Por favor, sube un archivo Excel válido.</div>';
         } else {
-            $spreadsheet = IOFactory::load($archivo);
+            $spreadsheet = IOFactory::load($archivoDestino);
             $hoja = $spreadsheet->getActiveSheet();
             $datos = $hoja->toArray();
-            $encabezados = array_shift($datos); // quitar encabezados
+            $encabezados = array_shift($datos);
 
             if (count($datos) === 0) {
                 $mensaje = '<div class="alert alert-warning">⚠️ El archivo está vacío.</div>';
@@ -158,7 +179,7 @@ class ExcelImport {
                 foreach ($datos as $fila) {
                     echo '<tr>';
                     foreach ($fila as $valor) {
-                        echo '<td>' . htmlspecialchars($valor ?? '') . '</td>';
+                        echo '<td>' . htmlspecialchars((string)$valor ?? '') . '</td>';
                     }
                     echo '</tr>';
                 }
@@ -166,21 +187,27 @@ class ExcelImport {
 
                 echo '<form method="POST" action="excelImport.php">';
                 echo '<input type="hidden" name="confirmar" value="1">';
-                echo '<input type="hidden" name="archivo_temp" value="' . $_FILES['archivo']['tmp_name'] . '">';
+                echo '<input type="hidden" name="archivo_temp" value="' . htmlspecialchars($archivoDestino) . '">';
                 echo '<button type="submit" class="btn btn-success"><i class="fas fa-database"></i> Confirmar e Insertar</button>';
                 echo '</form></div>';
             }
         }
     } elseif (isset($_POST['confirmar']) && isset($_POST['archivo_temp'])) {
         $archivoTemp = $_POST['archivo_temp'];
-        $spreadsheet = IOFactory::load($archivoTemp);
-        $hoja = $spreadsheet->getActiveSheet();
-        $datos = $hoja->toArray();
-        array_shift($datos); // quitar encabezados
+        if (!file_exists($archivoTemp)) {
+            echo '<div class="alert alert-danger">❌ El archivo temporal no existe.</div>';
+        } else {
+            $spreadsheet = IOFactory::load($archivoTemp);
+            $hoja = $spreadsheet->getActiveSheet();
+            $datos = $hoja->toArray();
+            array_shift($datos);
 
-        $excelImport = new ExcelImport();
-        $mensaje = $excelImport->importarExcel($datos);
-        echo '<div class="alert alert-info mt-3">' . $mensaje . '</div>';
+            $excelImport = new ExcelImport();
+            $mensaje = $excelImport->importarExcel($datos);
+            echo '<div class="alert alert-info mt-3">' . $mensaje . '</div>';
+
+            unlink($archivoTemp);
+        }
     } else {
         $mensaje = '<div class="alert alert-warning">⚠️ Por favor, selecciona un archivo Excel para importar.</div>';
     }
@@ -189,7 +216,6 @@ class ExcelImport {
         echo $mensaje;
     }
     ?>
-
 </div>
 
 <script src="../../jquery/jquery-3.3.1.min.js"></script>
