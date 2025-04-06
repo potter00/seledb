@@ -32,18 +32,22 @@ class ExcelImport {
             if (count($fila) < 7 || empty($fila[0])) {
                 continue; // Saltar filas incompletas
             }
-    
+        
+            // Columna reactivo (texto, no necesita validación numérica)
             $reactivo = $fila[0];
-            $compras = $fila[1] ?: 0;
-            $consumo = $fila[2] ?: 0;
-            $existencia = $fila[3] ?: 0;
-            $inventario_en_muestras = $fila[4] ?: 0;
-            $gasto_por_dia = $fila[5] ?: 0;
-            $inventario_en_dias = $fila[6] ?: 0;
-            $dias_en_surtir = $fila[7] ?? 0;
-            $inventario_al_llegar = $fila[8] ?? 0;
-            $punto_reorden = $fila[9] ?? 0;
-    
+        
+            // Validar las columnas numéricas
+            $compras = is_numeric($fila[1]) ? $fila[1] : 0;  // Si no es numérico, asignar 0
+            $consumo = is_numeric($fila[2]) ? $fila[2] : 0;  // Lo mismo aquí
+            $existencia = is_numeric($fila[3]) ? $fila[3] : 0;
+            $inventario_en_muestras = is_numeric($fila[4]) ? $fila[4] : 0;
+            $gasto_por_dia = is_numeric($fila[5]) ? $fila[5] : 0;
+            $inventario_en_dias = is_numeric($fila[6]) ? $fila[6] : 0;
+            $dias_en_surtir = is_numeric($fila[7]) ? $fila[7] : 0;
+            $inventario_al_llegar = is_numeric($fila[8]) ? $fila[8] : 0;
+            $punto_reorden = is_numeric($fila[9]) ? $fila[9] : 0;
+        
+            // Preparar y ejecutar la consulta
             $stmt->bindParam(':reactivo', $reactivo);
             $stmt->bindParam(':compras', $compras);
             $stmt->bindParam(':consumo', $consumo);
@@ -54,14 +58,14 @@ class ExcelImport {
             $stmt->bindParam(':dias_en_surtir', $dias_en_surtir);
             $stmt->bindParam(':inventario_al_llegar', $inventario_al_llegar);
             $stmt->bindParam(':punto_reorden', $punto_reorden);
-    
+        
             $stmt->execute();
         }
+        
     
         return "✅ Datos importados correctamente.";
     }
-    
-    }
+}
 
 ?>
 
@@ -185,6 +189,7 @@ class ExcelImport {
                 }
                 echo '</tbody></table>';
 
+                // Mostrar el botón para confirmar la importación
                 echo '<form method="POST" action="excelImport.php">';
                 echo '<input type="hidden" name="confirmar" value="1">';
                 echo '<input type="hidden" name="archivo_temp" value="' . htmlspecialchars($archivoDestino) . '">';
