@@ -16,60 +16,58 @@ class ExcelImport {
 
     public function importarExcel($datos) {
         $sql = "INSERT INTO tblreactivos (
-            reactivo, inventario_inicial, unidad, compras, consumo, existencia,
-            inventario_en_muestras, gasto_por_dia, inventario_en_dias, dias_en_surtir,
-            inventario_al_llegar, punto_reorden
-        ) 
-        VALUES (
-            :reactivo, :inventario_inicial, :unidad, :compras, :consumo, :existencia,
-            :inventario_en_muestras, :gasto_por_dia, :inventario_en_dias, :dias_en_surtir,
-            :inventario_al_llegar, :punto_reorden
-        )";
-
-$stmt = $this->conexion->prepare($sql);
-
-foreach ($datos as $fila) {
-    if (count($fila) < 12 || empty($fila[0])) {
-        continue; // Saltar filas incompletas
-    }
-
-    // Columna reactivo (texto, no necesita validación numérica)
-    $reactivo = $fila[0];
-
-    // Validar las nuevas columnas antes de las de compras
-    $inventario_inicial = is_numeric($fila[1]) ? $fila[1] : 0;
-    $unidad = isset($fila[2]) ? $fila[2] : '';
-
-    // Validar las columnas numéricas
-    $compras = is_numeric($fila[3]) ? $fila[3] : 0;  // Si no es numérico, asignar 0
-    $consumo = is_numeric($fila[4]) ? $fila[4] : 0;  // Lo mismo aquí
-    $existencia = is_numeric($fila[5]) ? $fila[5] : 0;
-    $inventario_en_muestras = is_numeric($fila[6]) ? $fila[6] : 0;
-    $gasto_por_dia = is_numeric($fila[7]) ? $fila[7] : 0;
-    $inventario_en_dias = is_numeric($fila[8]) ? $fila[8] : 0;
-    $dias_en_surtir = is_numeric($fila[9]) ? $fila[9] : 0;
-    $inventario_al_llegar = is_numeric($fila[10]) ? $fila[10] : 0;
-    $punto_reorden = is_numeric($fila[11]) ? $fila[11] : 0;
-
-    // Preparar y ejecutar la consulta
-    $stmt->bindParam(':reactivo', $reactivo);
-    $stmt->bindParam(':inventario_inicial', $inventario_inicial);
-    $stmt->bindParam(':unidad', $unidad);
-    $stmt->bindParam(':compras', $compras);
-    $stmt->bindParam(':consumo', $consumo);
-    $stmt->bindParam(':existencia', $existencia);
-    $stmt->bindParam(':inventario_en_muestras', $inventario_en_muestras);
-    $stmt->bindParam(':gasto_por_dia', $gasto_por_dia);
-    $stmt->bindParam(':inventario_en_dias', $inventario_en_dias);
-    $stmt->bindParam(':dias_en_surtir', $dias_en_surtir);
-    $stmt->bindParam(':inventario_al_llegar', $inventario_al_llegar);
-    $stmt->bindParam(':punto_reorden', $punto_reorden);
-
-    $stmt->execute();
-}
+            reactivo, 
+            inventario_inicial, 
+            unidad, 
+            compras, 
+            consumo, 
+            existencia, 
+            inventario_en_muestras, 
+            gasto_por_dia, 
+            inventario_en_dias, 
+            dias_en_surtir, 
+            inventario_al_llegar, 
+            punto_reorden
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
-    
-        return "✅ Datos importados correctamente.";
+        $stmt = $this->conexion->prepare($sql);
+        
+        foreach ($datos as $i => $fila) {
+            // Evitar encabezado o fila vacía
+            if ($i === 0 || $fila[1] == "Reactivo") continue;
+
+            // Verifica que haya al menos 13 columnas (desde A hasta M)
+            if (count($fila) < 13) {
+                echo "⚠️ Fila $i incompleta: " . implode(", ", $fila) . "<br>";
+                continue;
+            } // saltar encabezado si viene incluido
+
+            // Validar que 'reactivo' (columna B, índice 1) no sea nulo o vacío
+            if (empty($fila[1])) {
+                echo "⚠️ Fila $i con campo 'reactivo' vacío. Se omitió.<br>";
+                continue;
+            }
+
+                
+        
+            $stmt->execute([
+                $fila[1], // reactivo (columna B)
+                $fila[2], // inventario_inicial (columna C)
+                $fila[3], // unidad (columna D)
+                $fila[4], // compras (columna E)
+                $fila[5], // consumo (columna F)
+                $fila[6], // existencia (columna G)
+                $fila[7], // inventario_en_muestras (columna H)
+                $fila[8], // gasto_por_dia (columna I)
+                $fila[9], // inventario_en_dias (columna J)
+                $fila[10], // dias_en_surtir (columna K)
+                $fila[11], // inventario_al_llegar (columna L)
+                $fila[12], // punto_reorden (columna M)
+            ]);
+        }
+        
+
+return "✅ Datos importados correctamente.";
     }
 }
 
