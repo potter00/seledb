@@ -16,7 +16,7 @@ $('#formLogin').submit(function(e){
            datatype: "json",
            data: {usuario:usuario, password:password}, 
            success:function(data){               
-               if(data == "null"){
+               if(data == null){
                    Swal.fire({
                        type:'error',
                        title:'Usuario y/o password incorrecta',
@@ -30,7 +30,8 @@ $('#formLogin').submit(function(e){
                    }).then((result) => {
                        if(result.value){
                            //window.location.href = "vistas/pag_inicio.php";
-                           window.location.href = "dashboard/index.php";
+                           console.log("Redirigiendo a Excel")
+                           window.location.href = "bd/excel/excelImport.php";
                        }
                    })
                    

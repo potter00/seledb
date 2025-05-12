@@ -10,7 +10,7 @@ $usuario = (isset($_POST['usuario'])) ? $_POST['usuario'] : '';
 $password = (isset($_POST['password'])) ? $_POST['password'] : '';
 
 
-$pass = md5($password); //encripto la clave enviada por el usuario para compararla con la clava encriptada y almacenada en la BD
+$pass = ($password); //md5 encripto la clave enviada por el usuario para compararla con la clava encriptada y almacenada en la BD
 
 
 $consulta = "SELECT * FROM usuarios WHERE nombre='$usuario' AND password='$pass' ";

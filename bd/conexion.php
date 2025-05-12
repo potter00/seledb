@@ -2,8 +2,8 @@
 class Conexion {
     private static $host = "localhost";
     private static $dbname = "selectadb";
-    private static $username = "root";  // Cambia si usas otra credencial
-    private static $password = "root";      // Cambia si usas otra credencial
+    private static $username = "root";  
+    private static $password = "root";      
     private static $conexion = null;
 
     public static function Conectar() {
