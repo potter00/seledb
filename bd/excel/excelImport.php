@@ -15,60 +15,94 @@ class ExcelImport {
     }
 
     public function importarExcel($datos) {
-        $sql = "INSERT INTO tblreactivos (
-            reactivo, 
-            inventario_inicial, 
-            unidad, 
-            compras, 
-            consumo, 
-            existencia, 
-            inventario_en_muestras, 
-            gasto_por_dia, 
-            inventario_en_dias, 
-            dias_en_surtir, 
-            inventario_al_llegar, 
-            punto_reorden
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        $stmt = $this->conexion->prepare($sql);
-        
-        foreach ($datos as $i => $fila) {
-            // Evitar encabezado o fila vacía
-            if ($i === 0 || $fila[1] == "Reactivo") continue;
+    $sql = "INSERT INTO tblreactivos (
+        reactivo, 
+        inventario_inicial, 
+        unidad, 
+        compras, 
+        consumo, 
+        existencia, 
+        inventario_en_muestras, 
+        gasto_por_dia, 
+        inventario_en_dias, 
+        dias_en_surtir, 
+        inventario_al_llegar, 
+        punto_reorden
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            // Verifica que haya al menos 13 columnas (desde A hasta M)
-            if (count($fila) < 13) {
-                echo "⚠️ Fila $i incompleta: " . implode(", ", $fila) . "<br>";
-                continue;
-            } // saltar encabezado si viene incluido
+    $stmt = $this->conexion->prepare($sql);
 
-            // Validar que 'reactivo' (columna B, índice 1) no sea nulo o vacío
-            if (empty($fila[1])) {
-                echo "⚠️ Fila $i con campo 'reactivo' vacío. Se omitió.<br>";
-                continue;
-            }
+    foreach ($datos as $i => $fila) {
+        // Saltar filas vacías
+        if (count(array_filter($fila)) === 0) continue;
 
-                
-        
-            $stmt->execute([
-                $fila[1], // reactivo (columna B)
-                $fila[2], // inventario_inicial (columna C)
-                $fila[3], // unidad (columna D)
-                $fila[4], // compras (columna E)
-                $fila[5], // consumo (columna F)
-                $fila[6], // existencia (columna G)
-                $fila[7], // inventario_en_muestras (columna H)
-                $fila[8], // gasto_por_dia (columna I)
-                $fila[9], // inventario_en_dias (columna J)
-                $fila[10], // dias_en_surtir (columna K)
-                $fila[11], // inventario_al_llegar (columna L)
-                $fila[12], // punto_reorden (columna M)
-            ]);
+        // Saltar encabezados si el valor de la columna B contiene "reactivo"
+        if (isset($fila[1]) && stripos($fila[1], 'reactivo') !== false) continue;
+
+        // Validar que haya al menos 13 columnas
+        if (count($fila) < 13) {
+            echo "⚠️ Fila $i incompleta.<br>";
+            continue;
         }
-        
 
-return "✅ Datos importados correctamente.";
+        // Validar que el campo 'reactivo' no esté vacío
+        if (empty($fila[1])) {
+            echo "⚠️ Fila $i con campo 'reactivo' vacío. Se omitió.<br>";
+            continue;
+        }
+
+        // Limpiar y convertir datos
+        $reactivo = isset($fila[1]) ? trim($fila[1]) : '';
+        $inventario_inicial = self::toDecimal($fila[2]);
+        $unidad = isset($fila[3]) ? trim($fila[3]) : '';
+        $compras = self::toDecimal($fila[4]);
+        $consumo = self::toDecimal($fila[5]);
+        $existencia = self::toDecimal($fila[6]);
+        $inventario_en_muestras = self::toDecimal($fila[7]);
+        $gasto_por_dia = self::toDecimal($fila[8]);
+        $inventario_en_dias = self::toInt($fila[9]);
+        $dias_en_surtir = self::toInt($fila[10]);
+        $inventario_al_llegar = self::toDecimal($fila[11]);
+        $punto_reorden = self::toDecimal($fila[12]);
+
+
+        try {
+            $stmt->execute([
+                $reactivo,
+                $inventario_inicial,
+                $unidad,
+                $compras,
+                $consumo,
+                $existencia,
+                $inventario_en_muestras,
+                $gasto_por_dia,
+                $inventario_en_dias,
+                $dias_en_surtir,
+                $inventario_al_llegar,
+                $punto_reorden
+            ]);
+        } catch (PDOException $e) {
+            echo "❌ Error en fila $i: " . $e->getMessage() . "<br>";
+        }
     }
+
+    return "✅ Datos importados correctamente.";
+}
+
+// Función para convertir a decimal seguro
+private static function toDecimal($valor) {
+    if (is_null($valor) || trim($valor) === '' || $valor === '-') return 0.0;
+    $valor = str_replace(",", ".", trim((string)$valor));
+    return is_numeric($valor) ? (float)$valor : 0.0;
+}
+
+private static function toInt($valor) {
+    if (is_null($valor) || trim($valor) === '' || $valor === '-') return 0;
+    return is_numeric($valor) ? (int)$valor : 0;
+}
+
+
+
 }
 
 ?>
